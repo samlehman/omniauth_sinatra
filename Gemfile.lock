@@ -34,7 +34,7 @@ GEM
       method_source (~> 0.9.0)
     pry-coolline (0.2.5)
       coolline (~> 0.5)
-    rack (2.2.2)
+    rack (2.2.3)
     rack-protection (2.0.8.1)
       rack
     ruby2_keywords (0.0.2)
