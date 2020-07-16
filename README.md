@@ -18,3 +18,4 @@ Small app to help run and debug omniauth strategies locally with the help of a s
 * Accept permissions to access scopes defined in Omniauth provider
 * Get redirected back to your callback url
 * Auth info is put into your terminal for you to use to then authenticate your actual requests
+
