@@ -26,6 +26,8 @@ class MySinatraApp < Sinatra::Base
         name: "snapchat",
         scope: "snapchat-marketing-api"
       }
+
+    provider :spot_x_publisher_platform, ENV['SPOTX_CLIENT_ID'], ENV['SPOTX_CLIENT_SECRET']
   end
 
   get '/' do
@@ -33,6 +35,7 @@ class MySinatraApp < Sinatra::Base
     <a href='/auth/bingads'>Sign in with Bing</a>
     <a href='/auth/onedrive'>Sign in with OneDrive</a>
     <a href='/auth/snapchat'>Sign in with Snapchat</a>
+    <a href='/auth/spot_x_publisher_platform'>Sign in with Spot X</a>
     HTML
   end
 
@@ -53,6 +56,12 @@ class MySinatraApp < Sinatra::Base
   end
 
   get '/auth/snapchat/callback' do
+    auth = request.env['omniauth.auth']
+
+    auth.to_s
+  end
+
+  get '/auth/spot_x_publisher_platform/callback' do
     auth = request.env['omniauth.auth']
 
     auth.to_s
@@ -87,6 +96,50 @@ module OmniAuth
       def callback_url
         full_host + script_name + callback_path
       end
+    end
+
+    class SpotXPublisherPlatform < OmniAuth::Strategies::OAuth2
+      BASE_SPOTXCHANGE_URL = 'https://auth.spotx.tv/oauth2'
+      option :name, 'spot_x_publisher_platform'
+      option :client_options, {
+            :site          =>   BASE_SPOTXCHANGE_URL,
+            :authorize_url => "#{BASE_SPOTXCHANGE_URL}/auth",
+            :token_url     => "#{BASE_SPOTXCHANGE_URL}/token"
+          }
+
+      # had to override the default build_access_token behavior
+      # because the spotx token URL sends us a none-standard
+      # access token hash that the low level parsing code doesn't know how to handle
+      def build_access_token
+        super
+      rescue => e
+        json = e.message[MATCH_ACCESS_TOKEN_JSON,1]
+        hash = Yajl::Parser.parse(json, symbolize_keys: true)
+        params = hash.fetch(:value).fetch(:data)
+        ::OAuth2::AccessToken.from_hash(client, params)
+      end
+
+      #######
+      #
+      # Omniauth (in 3.0.0?) made a change to allow query_params onto the request string.
+      # There is some debate as to violation of the spec or now, regardless, the change stuck.
+      #
+      # So omniauth-oauth2 moved to 1.4.0 and broke lots of downstream provider gems
+      # as well as our implementation of SpotX
+      #
+      # Read more here: https://github.com/intridea/omniauth-oauth2/issues/81
+      #
+      # This means that this strategy needs to define its own callback_url that
+      # leaves off the query_params
+      #
+      #####
+      def callback_url
+        full_host + script_name + callback_path
+      end
+
+      private
+
+      MATCH_ACCESS_TOKEN_JSON = /\: \n(.+)/
     end
 
     class Snapchat < OmniAuth::Strategies::OAuth2
