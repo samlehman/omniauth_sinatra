@@ -7,6 +7,12 @@ require 'omniauth'
 require 'omniauth-oauth2'
 
 class MySinatraApp < Sinatra::Base
+  SETUP_PROC = lambda do |env|
+    request = Rack::Request.new(env)
+    env['omniauth.strategy'].options[:client_id] = ENV['SPOTX_CLIENT_ID']
+    env['omniauth.strategy'].options[:client_secret] = ENV['SPOTX_CLIENT_SECRET']
+  end
+
   use Rack::Session::Cookie
   use OmniAuth::Builder do
     provider :windowslive, ENV['MICROSOFT_CLIENT_ID'], ENV['MICROSOFT_CLIENT_SECRET'],
@@ -27,7 +33,7 @@ class MySinatraApp < Sinatra::Base
         scope: "snapchat-marketing-api"
       }
 
-    provider :spot_x_publisher_platform, ENV['SPOTX_CLIENT_ID'], ENV['SPOTX_CLIENT_SECRET']
+    provider :spot_x_publisher_platform, :setup => SETUP_PROC
   end
 
   get '/' do
