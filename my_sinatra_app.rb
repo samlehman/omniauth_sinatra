@@ -7,6 +7,10 @@ require 'omniauth'
 require 'omniauth-oauth2'
 
 class MySinatraApp < Sinatra::Base
+  before do
+    redirect request.url.sub('http', 'https') unless request.secure?
+  end
+
   SETUP_PROC = lambda do |env|
     request = Rack::Request.new(env)
     env['omniauth.strategy'].options[:client_id] = ENV['SPOTX_CLIENT_ID']
