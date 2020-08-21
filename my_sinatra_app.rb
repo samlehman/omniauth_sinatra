@@ -56,25 +56,25 @@ class MySinatraApp < Sinatra::Base
   get '/auth/bingads/callback' do
     auth = request.env['omniauth.auth']
 
-    auth.to_s
+    puts auth.to_s
   end
 
   get '/auth/onedrive/callback' do
     auth = request.env['omniauth.auth']
 
-    auth.to_s
+    puts auth.to_s
   end
 
   get '/auth/snapchat/callback' do
     auth = request.env['omniauth.auth']
 
-    auth.to_s
+    puts auth.to_s
   end
 
   get '/auth/spot_x_publisher_platform/callback' do
     auth = request.env['omniauth.auth']
 
-    auth.to_s
+    puts auth.to_s
   end
 end
 
