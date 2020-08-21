@@ -50,7 +50,7 @@ class MySinatraApp < Sinatra::Base
   end
 
   get '/test' do
-    "Hello World"
+    puts "Hello World"
   end
 
   get '/auth/bingads/callback' do
@@ -185,5 +185,3 @@ module OmniAuth
     end
   end
 end
-
-
