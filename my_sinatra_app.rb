@@ -160,9 +160,9 @@ module OmniAuth
       option :name, "snapchat"
 
       option :client_options, {
-        site:          'https://adsapi.snapchat.com',
+        site: 'https://adsapi.snapchat.com',
         authorize_url: 'https://accounts.snapchat.com/login/oauth2/authorize',
-        token_url:     'https://accounts.snapchat.com/login/oauth2/access_token'
+        token_url: 'https://accounts.snapchat.com/login/oauth2/access_token'
       }
 
       uid { raw_info['me']['id'] }
@@ -185,6 +185,19 @@ module OmniAuth
       def raw_info
         raw_info_url = "https://adsapi.snapchat.com/v1/me"
         @raw_info ||= access_token.get(raw_info_url).parsed
+      end
+
+      def callback_url
+        options[:redirect_uri] || full_host + script_name + callback_path
+      end
+
+      def token_params
+        authorization = Base64.strict_encode64("#{options.client_id}:#{options.client_secret}")
+        super.merge({
+          headers: {
+            "Authorization" => "Basic #{authorization}"
+          }
+        })
       end
     end
   end
