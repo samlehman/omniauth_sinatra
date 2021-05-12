@@ -69,8 +69,10 @@ class MySinatraApp < Sinatra::Base
 
   get '/auth/snapchat/callback' do
     auth = request.env['omniauth.auth']
+    params = request.env["omniauth.params"]
     
     puts auth.to_s
+    puts params
     "Successful"
   end
 
