@@ -5,6 +5,7 @@ require 'sinatra/base'
 require 'sinatra/contrib'
 require 'omniauth'
 require 'omniauth-oauth2'
+require 'omniauth-salesforce'
 
 class MySinatraApp < Sinatra::Base
   before do
@@ -25,6 +26,11 @@ class MySinatraApp < Sinatra::Base
         scope: "https://ads.microsoft.com/ads.manage offline_access"
       }
 
+    provider :salesforcesandbox, ENV['SALESFORCE_CLIENT_ID'], ENV['SALESFORCE_CLIENT_SECRET'],
+      {
+        name: "salesforcesandbox"
+      }
+
     provider :windowslive, ENV['MICROSOFT_CLIENT_ID'], ENV['MICROSOFT_CLIENT_SECRET'],
       {
         name: "onedrive",
@@ -43,6 +49,7 @@ class MySinatraApp < Sinatra::Base
   get '/' do
     <<-HTML
     <a href='/auth/bingads'>Sign in with Bing</a>
+    <a href='/auth/salesforcesandbox'>Sign in with SalesforceSandbox</a>
     <a href='/auth/onedrive'>Sign in with OneDrive</a>
     <a href='/auth/snapchat'>Sign in with Snapchat</a>
     <a href='/auth/spot_x_publisher_platform'>Sign in with Spot X</a>
@@ -51,6 +58,13 @@ class MySinatraApp < Sinatra::Base
 
   get '/test' do
     puts "Hello World"
+  end
+
+  get '/auth/salesforcesandbox/callback' do
+    auth = request.env['omniauth.auth']
+    
+    puts auth.to_s
+    "Successful"
   end
 
   get '/auth/bingads/callback' do
@@ -86,6 +100,10 @@ end
 
 module OmniAuth
   module Strategies
+    class SalesforceSandbox < OmniAuth::Strategies::SalesforceSandbox
+      option :name, 'salesforcesandbox'
+    end
+
     class Windowslive < OmniAuth::Strategies::OAuth2
       AUTH_URL = "https://login.microsoftonline.com"
 
